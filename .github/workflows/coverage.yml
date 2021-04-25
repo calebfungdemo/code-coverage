@@ -1,0 +1,68 @@
+name: Coverage
+
+on:
+  # Run this Github Actions workflow
+  # if files in the `src` directory or the `pom.xml` file has changed on pull requests, or
+  # if files in the `src` directory or the `pom.xml` file has changed on the main branch
+  pull_request:
+  push:
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+    branches: 
+      - main
+
+jobs:
+  run_tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout the project from GitHub
+    - name: Checkout project
+      uses: actions/checkout@v2.3.4
+    # Set up Java 11 for the workflow
+    - name: Set up JDK 1.11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    # Cache Maven dependencies so that future builds will run faster
+    - name: Cache Maven dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: mvn-deps
+      with:
+        path: ~/.m2
+        key: ${{ env.cache-name }}-${{ hashFiles('pom.xml') }}
+        restore-keys: ${{ env.cache-name }}-
+    # Run unit tests for the project
+    - name: Run tests
+      # TODO: Update the following to run unit tests for the project
+      run: |
+        echo "TODO: run unit tests"
+    # Determine if the JaCoCo coverage report file was generated
+    - name: Check for JaCoCo coverage report
+      id: report-exists
+      # Run this step even if a previous step failed
+      if: always()
+      run: |
+        OUTPUT=0
+        if [ -f ./target/site/jacoco/jacoco.xml ]; then
+            OUTPUT=1
+        fi
+        echo "::set-output name=OUTPUT::$OUTPUT"
+    # Upload JaCoCo coverage report to Codecov
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v1
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # Run this step even if a previous step failed, but only if the jacoco.xml file is found
+      # and the CODECOV_TOKEN is defined
+      if: |
+        always() &&
+        steps.report-exists.outputs.OUTPUT == 1 &&
+        env.CODECOV_TOKEN != ''
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./target/site/jacoco/jacoco.xml
+        flags: unittests
