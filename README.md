@@ -50,7 +50,7 @@ At the root of the project, run
    Add a coverage check to ensure that the ratio for lines of code covered by unit tests is at least 85%.
    Refer to the [JaCoCo documentation](https://www.eclemma.org/jacoco/trunk/doc/check-mojo.html) for more information on coverage checks.
    <details>
-      <summary>Spoiler</summary>   
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
       
       ```xml
       <plugin>
@@ -116,7 +116,7 @@ At the root of the project, run
                                       <value>COVEREDRATIO</value>
                                       <minimum>0.85</minimum>
                                   </limit>
-                                  <!-- TODO: Add another check for branch coverage here -->
+                                  <!-- TODO: In step 8, add another check for branch coverage here -->
                               </limits>
                           </rule>
                       </rules>
@@ -148,19 +148,21 @@ At the root of the project, run
 4. You can leverage coverage checks or metrics in code coverage frameworks like JaCoCo to fail your build in a CI pipeline.
    When you integrate coverage checks and report generation into your CI pipelines,
    you can automate the coverage check process and encourage continuous improvement in a DevOps environment.
-   To run unit tests and generate a coverage report, update the [`coverage.yml`](./.github/workflows/coverage.yml) GitHub Actions workflow.
+   To run unit tests and generate a coverage report, update the [`build.yml`](./.github/workflows/build.yml) GitHub Actions workflow.
    <details>
-      <summary>Spoiler</summary>   
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
       
       ```yaml
       - name: Run tests
         run: mvn test
       ```
    </details>
-   
+
+   Typically, in a project with a CI pipeline, you would include a coverage step to ensure that code that is added/updated are covered by unit tests.
+   If there is insufficient code coverage, the build should fail.
    Commit your changed files and push them up to the main branch
    ```bash
-   git add .github/workflows/coverage.yml pom.xml
+   git add .github/workflows/build.yml pom.xml
    git commit -m "ci: Run unit tests and generate coverage report in GitHub Actions workflow"
    git push
    ```
@@ -180,7 +182,7 @@ At the root of the project, run
    ```
 6. You can configure a code coverage tool like [Codecov](https://about.codecov.io/) for more features and insights on code coverage for you application.
    For this lab, we'll simply upload the [`jacoco.xml`](./target/site/jacoco/jacoco.xml) coverage report file to Codecov, which will generate an interactive starburst chart.
-   Head over to the Codecov site and register your code coverage GitHub repo, e.g., https://github.com/<github-username>/code-coverage.
+   Head over to the Codecov site and register your code coverage GitHub repo, e.g., `https://github.com/<github-username>/code-coverage`.
    Once, your repo has been configured, navigate to the Settings tab and copy the Repository Upload Token from the General section.
    Your token should look like the following
    ```text
@@ -194,11 +196,12 @@ At the root of the project, run
    | ------ | ---------------------------------------- |
    | Name   | CODECOV_TOKEN                            |
    | Value  | \<Your Codecov Repository Upload Token\> |
+   
    _Optional_: Add a coverage badge to this README by navigating to the Badge section in the Settings tab of your Codecov project.
    Copy the text under Markdown and paste it at the top of this README file.
 7. To fix the build and increase code coverage, update the unit test for [`UnscrableServiceTest#unscramblesMatrix`](./src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java).
    <details>
-      <summary>Spoiler</summary>   
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
       
       ```java
       class UnscrambleServiceTest {
@@ -214,7 +217,7 @@ At the root of the project, run
       }
       ```
    </details>
-   
+
    Commit and push up your changes to run the GitHub Actions workflow
    ```bash
    git add pom.xml
@@ -225,7 +228,7 @@ At the root of the project, run
 8. Add an additional check for branch coverage in the `pom.xml` file.
    There won't be any noticeable change to the coverage results because code coverage is already at 100%.
    <details>
-      <summary>Spoiler</summary>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>
          
       ```xml
       <limit>
@@ -245,14 +248,30 @@ At the root of the project, run
 
 ## Future Considerations
 
-1. Besides GitHub actions, there are other CI solutions you can explore to integrate and automate code coverage reports with
+* In addition to statement and branch coverage, there are other coverage metrics you should consider for code.
+  [NASA's guide](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf) on Modified Condition/Decision Coverage includes a great table on the types of structural coverage
+  
+  | Coverage Criteria                                                                                  | Statement<br>Coverage | Decision<br>Coverage | Condition<br>Coverage | Condition/<br>Decision<br>Coverage | MC/DC | Multiple<br>Condition<br>Coverage |
+  |----------------------------------------------------------------------------------                  | :-------------------: | :------------------: | :-------------------: | :--------------------------------: | :---: | :-------------------------------: |
+  | Every point of entry and exit in the<br>program has been invoked at least<br>once                  |                       | *                    | *                     | *                                  | *     | *                                 |
+  | Every statement in the program<br>has been invoked at least once                                   | *                     |                      |                       |                                    |       |                                   |
+  | Every decision in the program has<br>taken all possible outcomes at least<br>once                  |                       | *                    |                       | *                                  | *     | *                                 |
+  | Every condition in a decision in the<br>program has taken all possible<br>outcomes at least once   |                       |                      | *                     | *                                  | *     | *                                 |
+  | Every condition in a decision has<br>been shown to independently affect<br>that decision’s outcome |                       |                      |                       |                                    | *     | *<sup>+</sup>                     |
+  | Every combination of condition<br>outcomes within a decision has<br>been invoked at least once     |                       |                      |                       |                                    |       | *                                 |
+
+  <sup>+</sup> _Multiple condition coverage does not explicitly require showing the independent effect of each condition.
+  This will be done, in most cases, by showing that every combination of decision inputs has been invoked.
+  Note, however, that logical expressions exist wherein every condition cannot have an independent effect._
+
+* Besides GitHub actions, there are other CI solutions you can explore to integrate and automate code coverage reports with
    * Jenkins
    * GitLab CI
    * Azure DevOps
    * JetBrains TeamCity
    * AWS CodeBuild
-2. Implementing code coverage in a project and generating code coverage reports isn't enough to ensure high code quality.
+* Implementing code coverage in a project and generating code coverage reports isn't enough to ensure high code quality.
    It's also important to integrate a static code analysis tool like [SonarQube](https://www.sonarqube.org/) to detect bugs, code smells, and security vulnerabilities.
    JaCoCo integrates nicely with SonarQube.
-3. In addition to implementing static code analysis tools, you can track metrics for your application with tools such as [Graphite](https://graphiteapp.org/) or [Prometheus](https://prometheus.io/).
+* In addition to implementing static code analysis tools, you can track metrics for your application with tools such as [Graphite](https://graphiteapp.org/) or [Prometheus](https://prometheus.io/).
    These metrics can help you and your client make informed decisions to improve user experience.
