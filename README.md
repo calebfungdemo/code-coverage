@@ -160,14 +160,17 @@ At the root of the project, run
 
    Typically, in a project with a CI pipeline, you would include a coverage step to ensure that code that is added/updated are covered by unit tests.
    If there is insufficient code coverage, the build should fail.
+   
+   > **Important!** GitHub automatically disables GitHub Actions in forked repositories. Navigate to the Actions tab and enable GitHub Actions before pushing up your changes.
+   
    Commit your changed files and push them up to the main branch
    ```bash
    git add .github/workflows/build.yml pom.xml
    git commit -m "ci: Run unit tests and generate coverage report in GitHub Actions workflow"
    git push
    ```
-   Navigate to the Actions tab and select the Coverage workflow to see your workflow run.
-5. Note that the Run tests job within the Coverage workflow will fail.
+   Navigate to the Actions tab and select the Build workflow to see your workflow run.
+5. Note that the Run tests job within the Build workflow will fail.
    From the console logs, confirm that the job failed because code coverage constraints haven't been met
    ```text
    ...
@@ -220,7 +223,7 @@ At the root of the project, run
 
    Commit and push up your changes to run the GitHub Actions workflow
    ```bash
-   git add pom.xml
+   git add src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java
    git commit -m "test: Update unscramble service unit test to ensure it unnscrambles a matrix"
    git push
    ```
